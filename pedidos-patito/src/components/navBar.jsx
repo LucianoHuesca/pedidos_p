@@ -13,7 +13,7 @@ function NavBar() {
                         height="80"
                         className="me-2"
                     />
-                    <span className="fw-bold fs-4">Pedidos Patito</span>
+                    <span className="fw-bold fs-4">Patito Express</span>
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
