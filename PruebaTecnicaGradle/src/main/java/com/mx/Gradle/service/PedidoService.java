@@ -51,7 +51,6 @@ public class PedidoService {
         // Guardar pedido junto con detalles (Cascade ALL)
         return dao.save(pedido);
     }
-
 //    public Pedido guardar(Pedido pedido) {
 //        pedido.setFechaCreacion(LocalDateTime.now());
 //        pedido.setEstatus(pedido.getEstatus() != null ? pedido.getEstatus() : EstatusPedido.PENDIENTE);
