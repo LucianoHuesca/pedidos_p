@@ -24,7 +24,6 @@ public class PedidoService {
     private IProductoDao daoProducto;
     
     public Pedido guardarPedidoConValidacion(Pedido pedido) throws IllegalArgumentException {
-        // Validar existencias para cada detalle
         for (DetallePedido detalle : pedido.getDetalles()) {
             Producto producto = daoProducto.findById(detalle.getProducto().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado: " + detalle.getProducto().getId()));
