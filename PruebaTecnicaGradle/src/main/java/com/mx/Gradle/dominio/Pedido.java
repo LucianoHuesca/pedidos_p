@@ -6,10 +6,10 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "pedidos")
 @Data
 @NoArgsConstructor
@@ -35,7 +35,7 @@ public class Pedido {
     @JsonManagedReference
     private List<DetallePedido> detalles = new ArrayList<>();
     
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
