@@ -43,10 +43,8 @@ public class PedidoController {
 
     @PutMapping("/{id}/estatus")
     public ResponseEntity<Pedido> actualizarEstatus(@PathVariable("id") Long id, @RequestBody Map<String, String> requestBody) {
-        // Ahora el estatus se lee del cuerpo JSON
         String estatus = requestBody.get("estatus");
         if (estatus == null || estatus.trim().isEmpty()) {
-            // Puedes lanzar una excepción o devolver un BAD_REQUEST explícito
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El campo 'estatus' es requerido en el cuerpo de la petición.");
         }
         return ResponseEntity.ok(pedidoService.actualizarEstatus(id, estatus.toUpperCase()));
