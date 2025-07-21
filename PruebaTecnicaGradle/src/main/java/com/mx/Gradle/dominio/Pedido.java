@@ -35,7 +35,7 @@ public class Pedido {
     @JsonManagedReference
     private List<DetallePedido> detalles = new ArrayList<>();
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 

@@ -1,5 +1,6 @@
 package com.mx.Gradle.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,7 @@ import com.mx.Gradle.dominio.DetallePedido;
 import com.mx.Gradle.dominio.EstatusPedido;
 import com.mx.Gradle.dominio.Pedido;
 import com.mx.Gradle.dominio.Producto;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,35 +21,53 @@ public class PedidoService {
 
     @Autowired
     private IPedidoDao dao;
-    
+
     @Autowired
     private IProductoDao daoProducto;
-    
-    public Pedido guardarPedidoConValidacion(Pedido pedido) throws IllegalArgumentException {
-        for (DetallePedido detalle : pedido.getDetalles()) {
-            Producto producto = daoProducto.findById(detalle.getProducto().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado: " + detalle.getProducto().getId()));
 
-            if (producto.getExistencias() < detalle.getCantidad()) {
-                throw new IllegalArgumentException("Producto " + producto.getHawa() + " sin existencias suficientes.");
-            }
+    @Autowired(required = false)
+    private HttpServletRequest request;
+
+    @Transactional
+    public Pedido guardarPedidoConValidacion(Pedido pedido) throws IllegalArgumentException {
+        if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
+            throw new IllegalArgumentException("El pedido debe contener al menos un producto.");
         }
 
-        // Descontar existencias (opcional: para bonus puedes hacerlo solo cuando se confirme el pedido)
         for (DetallePedido detalle : pedido.getDetalles()) {
-            Producto producto = daoProducto.findById(detalle.getProducto().getId()).get();
-            producto.setExistencias(producto.getExistencias() - detalle.getCantidad());
-            daoProducto.save(producto);
-
             detalle.setPedido(pedido);
-            detalle.setPrecioUnitario(producto.getPrecioLista());
-            detalle.setDescuento(producto.getDescuento() != null ? producto.getDescuento() : 0.0);
+        }
+
+        for (DetallePedido detalle : pedido.getDetalles()) {
+            Optional<Producto> optionalProducto = daoProducto.findByHawa(detalle.getHawa());
+
+            if (!optionalProducto.isPresent()) {
+                throw new IllegalArgumentException("Producto no encontrado para HAWA: " + detalle.getHawa());
+            }
+            Producto productoEnBD = optionalProducto.get();
+
+            if (productoEnBD.getExistencias() < detalle.getCantidad()) {
+                throw new IllegalArgumentException("Producto " + productoEnBD.getHawa() + " sin existencias suficientes.");
+            }
+
+            detalle.setProducto(productoEnBD);
+
+            detalle.setPrecioUnitario(productoEnBD.getPrecioLista());
+            detalle.setDescuento(productoEnBD.getDescuento() != null ? productoEnBD.getDescuento() : 0.0);
+
+            productoEnBD.setExistencias(productoEnBD.getExistencias() - detalle.getCantidad());
+            daoProducto.save(productoEnBD);
         }
 
         pedido.setFechaCreacion(LocalDateTime.now());
         pedido.setEstatus(EstatusPedido.PENDIENTE);
 
-        // Guardar pedido junto con detalles (Cascade ALL)
+        if (request != null) {
+            pedido.setIpUsuario(request.getRemoteAddr());
+        } else {
+            pedido.setIpUsuario("UNKNOWN_IP");
+        }
+
         return dao.save(pedido);
     }
 //    public Pedido guardar(Pedido pedido) {
