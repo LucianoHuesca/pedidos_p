@@ -84,7 +84,11 @@ export const useOrderForm = () => {
     }, []);
 
     // @ts-ignore
+    // src/hooks/useOrderForm.js
+// ... (resto de imports y estados)
+
     const submitOrder = useCallback(async () => {
+        // Validaciones básicas del formulario
         if (orderItems.length === 0) {
             setOrderSubmitError('El pedido debe contener al menos un producto.');
             return;
@@ -99,19 +103,22 @@ export const useOrderForm = () => {
         setOrderSubmitSuccess(false);
 
         try {
-            const allSubmissionPromises = orderItems.map(async (item) => {
-                const pedidoData = {
-                    hawa: item.hawa,
-                    tienda: formData.tienda,
-                    cliente: formData.cliente,
-                    vendedor: formData.vendedor,
-                    descuento: item.descuento || parseFloat(formData.descuento) || 0
-                };
-                return createOrder(pedidoData);
-            });
+            const finalPedidoData = {
+                idTienda: formData.tienda,
+                nombreVendedor: formData.vendedor,
+                descuento: formData.descuento === '' ? null : parseFloat(formData.descuento),
 
-            // @ts-ignore
-            await Promise.all(allSubmissionPromises);
+                cliente: { id: 1 },
+
+                detalles: orderItems.map(item => ({
+                    hawa: item.hawa,
+                    cantidad: item.cantidad || 1, // Si no manejas cantidad específica, asume 1
+                    precioUnitario: item.precioLista,
+                    descuento: item.descuento
+                }))
+            };
+
+            await createOrder(finalPedidoData);
 
             setOrderSubmitSuccess(true);
             setOrderItems([]);
@@ -124,12 +131,17 @@ export const useOrderForm = () => {
                 descuento: ''
             });
         } catch (err) {
-            console.error('Error al enviar el pedido(s):', err);
-            setOrderSubmitError(err.message || 'Ocurrió un error inesperado al procesar el pedido(s).');
+            console.error('Error al enviar el pedido:', err);
+            setOrderSubmitError(err.message || 'Ocurrió un error inesperado al procesar el pedido.');
         } finally {
             setIsSubmittingOrder(false);
         }
     }, [formData, orderItems]);
+
+
+
+
+
 
     return {
         formData,

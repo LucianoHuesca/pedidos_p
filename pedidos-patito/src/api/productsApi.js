@@ -1,9 +1,9 @@
-import axiosClient from './axiosClient';
+import axiosClient from './axiosClient.js';
 
 // GET http://localhost:8090/api/productos/hawa/{hawa}
 export const getProductByHawa = async (hawa) => {
     try {
-        const response = await axiosClient.get(`/productos/hawa/${hawa}`);
+        const response = await axiosClient.get(`/productos/${hawa}`);
         return response.data;
     } catch (error) {
         if (error.response && error.response.status === 404) {

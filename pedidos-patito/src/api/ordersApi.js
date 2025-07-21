@@ -1,9 +1,8 @@
+// src/api/ordersApi.js
 import axiosClient from './axiosClient';
 
-// POST http://localhost:8090/api/pedidos
 export const createOrder = async (orderData) => {
     try {
-
         const response = await axiosClient.post('/pedidos', orderData);
         return response.data;
     } catch (error) {
@@ -12,7 +11,6 @@ export const createOrder = async (orderData) => {
     }
 };
 
-// GET http://localhost:8090/api/pedidos
 export const fetchOrders = async () => {
     try {
         const response = await axiosClient.get('/pedidos');
@@ -23,7 +21,6 @@ export const fetchOrders = async () => {
     }
 };
 
-// GET http://localhost:8090/api/pedidos/{id}
 export const getOrderById = async (id) => {
     try {
         const response = await axiosClient.get(`/pedidos/${id}`);
@@ -37,13 +34,27 @@ export const getOrderById = async (id) => {
     }
 };
 
-// PUT http://localhost:8090/api/pedidos/{id}/estatus
 export const updateOrderStatus = async (id, newStatus) => {
     try {
         const response = await axiosClient.put(`/pedidos/${id}/estatus`, { estatus: newStatus });
         return response.data;
     } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            throw new Error(error.response.data.message);
+        }
         console.error(`Error al actualizar el estado del pedido ${id}:`, error.response ? error.response.data : error.message);
         throw new Error(error.response?.data?.message || `Error al actualizar el estado del pedido ${id}.`);
+    }
+};
+
+export const deleteOrder = async (id) => {
+    try {
+        await axiosClient.delete(`/pedidos/${id}`);
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            throw new Error(`Pedido con ID ${id} no encontrado para eliminar.`);
+        }
+        console.error(`Error al eliminar pedido ${id}:`, error.response ? error.response.data : error.message);
+        throw new Error(error.response?.data?.message || `Error al eliminar pedido ${id}.`);
     }
 };

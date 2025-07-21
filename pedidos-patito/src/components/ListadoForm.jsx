@@ -1,52 +1,75 @@
 // src/pages/ListadoPedidos.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Table, Button, Spinner, Alert, Card } from 'react-bootstrap';
 
+import { fetchOrders, updateOrderStatus, deleteOrder } from '../api/ordersApi.js';
 
 function ListadoPedidos() {
-    // Simulamos un estado de carga, error y datos
-    // En un caso real, esto vendría de un hook como useOrders()
     const [pedidos, setPedidos] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [feedbackMessage, setFeedbackMessage] = useState(null);
+    const [feedbackVariant, setFeedbackVariant] = useState(null);
+
+    const loadPedidosFromBackend = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        setFeedbackMessage(null);
+        try {
+            const data = await fetchOrders();
+            setPedidos(data);
+        } catch (err) {
+            console.error("Error al cargar los pedidos:", err);
+            setError(new Error(err.message || 'No se pudieron cargar los pedidos. Por favor, intente de nuevo.'));
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        // Simula la carga de datos desde una API
-        const fetchPedidos = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                // Aquí harías tu llamada a la API real, por ejemplo:
-                // const response = await fetch('/api/pedidos');
-                // const data = await response.json();
-                const mockData = [
-                    { id: '001', hawa: 'HAWA123', tienda: 'T001', cliente: 'Juan Pérez', vendedor: 'Ana Gómez', estatus: 'pendiente', descuento: 10 },
-                    { id: '002', hawa: 'HAWA456', tienda: 'T002', cliente: 'María López', vendedor: 'Carlos Ruiz', estatus: 'entregado', descuento: 0 },
-                    { id: '003', hawa: 'HAWA789', tienda: 'T001', cliente: 'Pedro García', vendedor: 'Ana Gómez', estatus: 'cancelado', descuento: 5 },
-                    { id: '004', hawa: 'HAWA101', tienda: 'T003', cliente: 'Luisa Fernández', vendedor: 'Pedro Márquez', estatus: 'pendiente', descuento: 15 },
-                ];
-                setPedidos(mockData);
-            } catch (err) {
-                setError(new Error('No se pudieron cargar los pedidos. Inténtalo de nuevo.'));
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchPedidos();
-    }, []);
+        loadPedidosFromBackend();
+    }, [loadPedidosFromBackend]);
 
     const handleVerDetalle = (id) => {
         alert(`Ver Detalle del Pedido: ${id}`);
-
     };
 
-    const handleMarcarEntregado = (id) => {
-        if (window.confirm(`¿Estás seguro de marcar el pedido ${id} como ENTREGADO?`)) {
-            alert(`Pedido ${id} marcado como ENTREGADO`);
-            setPedidos(pedidos.map(p => p.id === id ? { ...p, estatus: 'entregado' } : p));
+    const handleActualizarEstatus = async (id, newStatus) => {
+        if (!window.confirm(`¿Estás seguro de marcar el pedido ${id} como ${newStatus.toUpperCase()}?`)) {
+            return;
+        }
+
+        setFeedbackMessage(null);
+        try {
+            const updatedPedido = await updateOrderStatus(id, newStatus.toUpperCase());
+
+            setPedidos(pedidos.map(p => p.id === id ? updatedPedido : p));
+            setFeedbackMessage(`Pedido ${id} actualizado a ${newStatus.toUpperCase()} con éxito.`);
+            setFeedbackVariant('success');
+        } catch (err) {
+            console.error(`Error al actualizar pedido ${id} a ${newStatus}:`, err);
+            setFeedbackMessage(err.message || `Error al actualizar el pedido ${id} a ${newStatus}.`);
+            setFeedbackVariant('danger');
         }
     };
+
+    const handleDeleteOrder = async (id) => {
+        if (!window.confirm(`¿Estás seguro de que quieres eliminar el pedido con ID ${id}?`)) {
+            return;
+        }
+
+        setFeedbackMessage(null);
+        try {
+            await deleteOrder(id);
+            setFeedbackMessage(`Pedido con ID ${id} eliminado con éxito.`);
+            setFeedbackVariant('success');
+            setPedidos(pedidos.filter(pedido => pedido.id !== id));
+        } catch (err) {
+            setFeedbackMessage(err.message || `Error al eliminar el pedido con ID ${id}.`);
+            setFeedbackVariant('danger');
+        }
+    };
+
     return (
         <Container className="my-5">
             <Card className="shadow-lg">
@@ -54,6 +77,7 @@ function ListadoPedidos() {
                     Listado de Pedidos
                 </Card.Header>
                 <Card.Body className="p-4">
+                    {feedbackMessage && <Alert variant={feedbackVariant} className="mb-3 text-center">{feedbackMessage}</Alert>}
 
                     {isLoading && (
                         <div className="text-center my-4">
@@ -63,13 +87,14 @@ function ListadoPedidos() {
                     )}
 
                     {error && (
-                        <Alert variant="danger" className="my-4">
+                        <Alert variant="danger" className="my-4 text-center">
                             <strong>Error:</strong> {error.message}
+                            <Button variant="danger" className="ms-3" onClick={loadPedidosFromBackend}>Reintentar</Button>
                         </Alert>
                     )}
 
                     {!isLoading && !error && pedidos.length === 0 && (
-                        <Alert variant="info" className="my-4">
+                        <Alert variant="info" className="my-4 text-center">
                             No hay pedidos registrados aún. ¡Anímate a crear uno!
                         </Alert>
                     )}
@@ -80,11 +105,11 @@ function ListadoPedidos() {
                                 <thead className="table-dark">
                                 <tr>
                                     <th>ID</th>
-                                    <th>HAWA</th>
+                                    <th>HAWA(s)</th>
                                     <th>Tienda</th>
                                     <th>Cliente</th>
                                     <th>Vendedor</th>
-                                    <th>Descuento</th>
+
                                     <th>Estatus</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -93,34 +118,54 @@ function ListadoPedidos() {
                                 {pedidos.map((p) => (
                                     <tr key={p.id}>
                                         <td>{p.id}</td>
-                                        <td>{p.hawa}</td>
-                                        <td>{p.tienda}</td>
-                                        <td>{p.cliente}</td>
-                                        <td>{p.vendedor}</td>
-                                        <td>{p.descuento}%</td>
                                         <td>
+                                            {p.detalles && p.detalles.length > 0 ? (
+                                                <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                                                    {p.detalles.map(d => (
+                                                        <li key={d.id || d.hawa}>
+                                                            {d.hawa} ({d.cantidad})
+                                                            {d.producto && d.producto.nombre ? ` - ${d.producto.nombre}` : ''}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : 'N/A'}
+                                        </td>
+                                        <td>{p.idTienda}</td>
+                                        <td>{p.cliente && p.cliente.nombre ? p.cliente.nombre : 'N/A'}</td>
+                                        <td>{p.nombreVendedor}</td>
 
-                                            <span className={`badge ${p.estatus === 'entregado' ? 'bg-success' : p.estatus === 'pendiente' ? 'bg-warning text-dark' : 'bg-danger'}`}>
+                                        <td>
+                                                <span className={`badge ${p.estatus === 'ENTREGADO' ? 'bg-success' : p.estatus === 'PENDIENTE' ? 'bg-warning text-dark' : 'bg-danger'}`}>
                                                     {p.estatus.toUpperCase()}
                                                 </span>
                                         </td>
-                                        <td>
+                                        <td className="d-flex flex-column align-items-center justify-content-center h-100">
                                             <Button
                                                 variant="outline-primary"
                                                 size="sm"
-                                                className="me-2"
+                                                className="mb-2"
                                                 onClick={() => handleVerDetalle(p.id)}
                                             >
                                                 Ver Detalle
                                             </Button>
-                                            {p.estatus === 'pendiente' && (
-                                                <Button
-                                                    variant="success"
-                                                    size="sm"
-                                                    onClick={() => handleMarcarEntregado(p.id)}
-                                                >
-                                                    Marcar Entregado
-                                                </Button>
+                                            {p.estatus === 'PENDIENTE' && (
+                                                <>
+                                                    <Button
+                                                        variant="success"
+                                                        size="sm"
+                                                        className="mb-2"
+                                                        onClick={() => handleActualizarEstatus(p.id, 'ENTREGADO')}
+                                                    >
+                                                        Marcar Entregado
+                                                    </Button>
+                                                    <Button
+                                                        variant="danger"
+                                                        size="mb-2"
+                                                        onClick={() => handleActualizarEstatus(p.id, 'CANCELADO')}
+                                                    >
+                                                        Cancelar
+                                                    </Button>
+                                                </>
                                             )}
                                         </td>
                                     </tr>
