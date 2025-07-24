@@ -49,16 +49,13 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // Definir los orígenes permitidos (la URL de tu frontend)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://127.0.0.1:5173")); // <-- ¡VERIFICA ESTAS URLs!
-        // Definir los métodos HTTP permitidos
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://127.0.0.1:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         // Definir los encabezados permitidos
-        configuration.setAllowedHeaders(Arrays.asList("*")); // Permite todos los encabezados
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         // Permitir el envío de credenciales (cookies, encabezados de autorización)
         configuration.setAllowCredentials(true);
-        // Establecer la duración máxima de la caché para las respuestas preflight
         configuration.setMaxAge(3600L); // 3600 segundos = 1 hora
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // Registrar la configuración CORS para todas las rutas que empiecen con /api/
         source.registerCorsConfiguration("/api/**", configuration);

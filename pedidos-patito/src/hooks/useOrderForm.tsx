@@ -84,9 +84,6 @@ export const useOrderForm = () => {
     }, []);
 
     // @ts-ignore
-    // src/hooks/useOrderForm.js
-// ... (resto de imports y estados)
-
     const submitOrder = useCallback(async () => {
         // Validaciones básicas del formulario
         if (orderItems.length === 0) {

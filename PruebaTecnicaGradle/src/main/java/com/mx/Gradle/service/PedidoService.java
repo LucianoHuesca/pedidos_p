@@ -70,11 +70,6 @@ public class PedidoService {
 
         return dao.save(pedido);
     }
-//    public Pedido guardar(Pedido pedido) {
-//        pedido.setFechaCreacion(LocalDateTime.now());
-//        pedido.setEstatus(pedido.getEstatus() != null ? pedido.getEstatus() : EstatusPedido.PENDIENTE);
-//        return dao.save(pedido);
-//    }
 
     public List<Pedido> listarTodos() {
         return dao.findAll();
@@ -89,8 +84,6 @@ public class PedidoService {
         pedido.setEstatus(EstatusPedido.valueOf(nuevoEstatus));
         return dao.save(pedido);
     }
-
-
 
 }
 
