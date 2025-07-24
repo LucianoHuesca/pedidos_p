@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
 
                 .authorizeHttpRequests(authorize -> authorize
-                                // 1. Permitir peticiones OPTIONS (preflight de CORS) sin autenticación. ¡CRUCIAL!
+                                // 1. Permitir peticiones OPTIONS (preflight de CORS) sin autenticación.
                                 .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
 
                                 // **** 2. ¡CLAVE! Permitir TODAS las peticiones a /api/** sin autenticación. ****

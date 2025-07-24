@@ -1,10 +1,10 @@
-// src/pages/ListadoPedidos.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Table, Button, Spinner, Alert, Card } from 'react-bootstrap';
 
-import { fetchOrders, updateOrderStatus, deleteOrder } from '../api/ordersApi.js';
+import { fetchOrders, updateOrderStatus} from '../api/ordersApi.js';
 
-function ListadoPedidos() {
+function ListadoForm() {
     const [pedidos, setPedidos] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -53,27 +53,10 @@ function ListadoPedidos() {
         }
     };
 
-    const handleDeleteOrder = async (id) => {
-        if (!window.confirm(`¿Estás seguro de que quieres eliminar el pedido con ID ${id}?`)) {
-            return;
-        }
-
-        setFeedbackMessage(null);
-        try {
-            await deleteOrder(id);
-            setFeedbackMessage(`Pedido con ID ${id} eliminado con éxito.`);
-            setFeedbackVariant('success');
-            setPedidos(pedidos.filter(pedido => pedido.id !== id));
-        } catch (err) {
-            setFeedbackMessage(err.message || `Error al eliminar el pedido con ID ${id}.`);
-            setFeedbackVariant('danger');
-        }
-    };
-
     return (
-        <Container className="my-5">
-            <Card className="shadow-lg">
-                <Card.Header as="h2" className="text-center bg-info text-white py-3">
+        <Container className="my-5" >
+            <Card className="shadow-lg rounded-5">
+                <Card.Header as="h2" className="text-center bg-primary text-white py-3 ">
                     Listado de Pedidos
                 </Card.Header>
                 <Card.Body className="p-4">
@@ -180,4 +163,4 @@ function ListadoPedidos() {
     );
 }
 
-export default ListadoPedidos;
+export default ListadoForm;

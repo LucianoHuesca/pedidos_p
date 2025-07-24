@@ -10,7 +10,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import Alert from 'react-bootstrap/Alert';
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import { useOrderForm } from '../hooks/useOrderForm';
+import { useOrderForm } from '../hooks/useOrderForm.jsx';
 
 function PedidoForm() {
     const {

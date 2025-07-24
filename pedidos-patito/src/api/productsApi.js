@@ -1,6 +1,5 @@
-import axiosClient from './axiosClient.js';
+import axiosClient from './axiosClient.jsx';
 
-// GET http://localhost:8090/api/productos/hawa/{hawa}
 export const getProductByHawa = async (hawa) => {
     try {
         const response = await axiosClient.get(`/productos/${hawa}`);

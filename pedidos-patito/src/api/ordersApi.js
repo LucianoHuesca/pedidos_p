@@ -1,5 +1,4 @@
-// src/api/ordersApi.js
-import axiosClient from './axiosClient';
+import axiosClient from './axiosClient.jsx';
 
 export const createOrder = async (orderData) => {
     try {
@@ -20,7 +19,7 @@ export const fetchOrders = async () => {
         throw new Error(error.response?.data?.message || 'No se pudieron cargar los pedidos. Inténtalo de nuevo.');
     }
 };
-
+/*
 export const getOrderById = async (id) => {
     try {
         const response = await axiosClient.get(`/pedidos/${id}`);
@@ -32,7 +31,7 @@ export const getOrderById = async (id) => {
         console.error(`Error al obtener pedido ${id}:`, error.response ? error.response.data : error.message);
         throw new Error(error.response?.data?.message || `Error al obtener pedido ${id}.`);
     }
-};
+};*/
 
 export const updateOrderStatus = async (id, newStatus) => {
     try {
@@ -44,17 +43,5 @@ export const updateOrderStatus = async (id, newStatus) => {
         }
         console.error(`Error al actualizar el estado del pedido ${id}:`, error.response ? error.response.data : error.message);
         throw new Error(error.response?.data?.message || `Error al actualizar el estado del pedido ${id}.`);
-    }
-};
-
-export const deleteOrder = async (id) => {
-    try {
-        await axiosClient.delete(`/pedidos/${id}`);
-    } catch (error) {
-        if (error.response && error.response.status === 404) {
-            throw new Error(`Pedido con ID ${id} no encontrado para eliminar.`);
-        }
-        console.error(`Error al eliminar pedido ${id}:`, error.response ? error.response.data : error.message);
-        throw new Error(error.response?.data?.message || `Error al eliminar pedido ${id}.`);
     }
 };

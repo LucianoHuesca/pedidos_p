@@ -1,4 +1,4 @@
-function LandingPage() {
+function Inicio() {
     return (
         <div style={{ textAlign: 'center' }}>
             <h1>Bienvenido al Sistema de Pedidos mas Patito</h1>
@@ -7,4 +7,4 @@ function LandingPage() {
     );
 }
 
-export default LandingPage;
+export default Inicio;

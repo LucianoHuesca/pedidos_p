@@ -1,11 +1,10 @@
 import PedidoForm from '../components/PedidosForm.jsx';
 
-function NuevoPedido({onAgregar}) {
+function RegistrarPedido() {
     return (
         <div style={{ padding: '2rem' }}>
-            <PedidoForm onAgregar={onAgregar} />
+            <PedidoForm />
         </div>
     );
-
 }
-export default NuevoPedido;
+export default RegistrarPedido;

@@ -41,7 +41,7 @@ function NavBar() {
                             className={({ isActive }) => isActive ? 'text-info' : 'text-white'}
                             style={{ margin: '0 0.5rem', fontWeight: 'bold' }}
                         >
-                            Listado
+                            Listado de Pedidos
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
