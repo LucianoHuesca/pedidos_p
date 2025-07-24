@@ -6,7 +6,7 @@ function NavBar() {
     return (
         <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
             <Container>
-                <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+                <Navbar.Brand to="/" className="d-flex align-items-center">
                     <img
                         src={PatitoLogo}
                         alt="Logo de Patito"
