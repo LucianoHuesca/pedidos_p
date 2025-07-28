@@ -90,7 +90,7 @@ function PedidoForm() {
 
                             {searchedProduct && (
                                 <Alert variant="info" className="p-3">
-                                    <h5>Producto Encontrado: <span className="text-primary">{searchedProduct.hawa}</span></h5>
+                                    <h5>Producto Encontrado: <span className="text-primary">{searchedProduct.nombre}</span></h5>
                                     <p className="mb-1">Precio: ${searchedProduct.precioLista ? searchedProduct.precioLista.toFixed(2) : 'N/A'}</p>
                                     <p className="mb-1">Descuento Base: {searchedProduct.descuento ? `${searchedProduct.descuento}%` : '0%'}</p>
                                     <p className="mb-3 fw-bold">Existencias: <span className={searchedProduct.existencias > 0 ? 'text-success' : 'text-danger'}>{searchedProduct.existencias}</span></p>

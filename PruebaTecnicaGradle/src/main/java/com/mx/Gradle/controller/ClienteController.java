@@ -32,5 +32,15 @@ public class ClienteController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Cliente>> buscarClientesPorNombre(@RequestParam String nombre) {
+        List<Cliente> clientes = clienteService.buscarPorNombre(nombre);
+        if (clientes.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(clientes);
+    }
+
 }
 

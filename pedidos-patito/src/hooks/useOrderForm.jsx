@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { getProductByHawa } from '../api/productsApi';
 import { createOrder } from '../api/ordersApi';
+import { searchClientsByName, createClient } from '../api/clientApi';
 
 export const useOrderForm = () => {
     const [formData, setFormData] = useState({
@@ -82,9 +83,7 @@ export const useOrderForm = () => {
         setOrderItems(prevItems => prevItems.filter(item => item.hawa !== hawaToRemove));
     }, []);
 
-    // @ts-ignore
     const submitOrder = useCallback(async () => {
-        // Validaciones básicas del formulario
         if (orderItems.length === 0) {
             setOrderSubmitError('El pedido debe contener al menos un producto.');
             return;
@@ -99,16 +98,33 @@ export const useOrderForm = () => {
         setOrderSubmitSuccess(false);
 
         try {
+            let clienteId;
+            const clientName = formData.cliente.trim();
+
+            const existingClients = await searchClientsByName(clientName);
+
+            if (existingClients && existingClients.length > 0) {
+                clienteId = existingClients[0].id;
+            } else {
+                const newClientData = {
+                    nombre: clientName,
+                    email: `${clientName.toLowerCase().replace(/\s/g, '')}@example.com`,
+                    telefono: 'N/A'
+                };
+                const createdClient = await createClient(newClientData);
+                clienteId = createdClient.id;
+            }
+
             const finalPedidoData = {
                 idTienda: formData.tienda,
                 nombreVendedor: formData.vendedor,
                 descuento: formData.descuento === '' ? null : parseFloat(formData.descuento),
 
-                cliente: { id: 1 },
+                cliente: { id: clienteId },
 
                 detalles: orderItems.map(item => ({
                     hawa: item.hawa,
-                    cantidad: item.cantidad || 1, // Si no manejas cantidad específica, asume 1
+                    cantidad: item.cantidad || 1,
                     precioUnitario: item.precioLista,
                     descuento: item.descuento
                 }))
@@ -116,6 +132,7 @@ export const useOrderForm = () => {
 
             await createOrder(finalPedidoData);
 
+            // Si todo es exitoso, reinicia los estados del formulario
             setOrderSubmitSuccess(true);
             setOrderItems([]);
             setHawaSearch('');
@@ -133,11 +150,6 @@ export const useOrderForm = () => {
             setIsSubmittingOrder(false);
         }
     }, [formData, orderItems]);
-
-
-
-
-
 
     return {
         formData,

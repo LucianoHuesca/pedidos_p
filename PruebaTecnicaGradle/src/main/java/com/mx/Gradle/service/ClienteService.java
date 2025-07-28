@@ -26,5 +26,10 @@ public class ClienteService {
     public Optional<Cliente> buscarPorId(Long id) {
         return dao.findById(id);
     }
+    public List<Cliente> buscarPorNombre(String nombre) {
+        return dao.findByNombre(nombre);
+    }
+
+
 }
 
